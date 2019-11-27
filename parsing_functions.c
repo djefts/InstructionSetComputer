@@ -5,9 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "Headers/parsing_functions.h"
 
-void parse_instruction(char *opcode, char *data) {
+void parse_instruction(char *opcode, char *data, unsigned char *memory, unsigned char *ACC, unsigned char *MAR) {
     if(strcmp(opcode, "00011000") == 0) {
         /* NOOP */
         return;
@@ -59,12 +60,60 @@ void parse_instruction(char *opcode, char *data) {
             char instr[4];
             memcpy(instr, &opcode[1], 3);
             instr[3] = '\0';
-            
             printf("Instr: %s\n", instr);
-            break;
+            
+            /* DETERMINE DESTINATION */
+            unsigned char *destination;
+            char dest[3];
+            memcpy(dest, &opcode[4], 2);
+            dest[2] = '\0';
+            if(strcmp(dest, "00") == 0) {
+                destination = &memory[*MAR];
+            } else if(strcmp(dest, "01") == 0) {
+                destination = ACC;
+            } else if(strcmp(dest, "10") == 0) {
+                destination = MAR;
+            } else if(strcmp(dest, "11") == 0) {
+                long location = 0;
+                for(int i = 0; i < 4; i++) {
+                    char loc[4];
+                    memcpy(loc, &data[i * 4], 3);
+                    loc[3] = '\0';
+                    location += binary_to_decimal(loc) * (long)pow(16, 3 - i);
+                }
+                destination = &memory[location];
+            } else {
+                printf("\nINVALID DESTINATION VALUE. SOMETHING IS WRONG. DATA: \'%s\'", data);
+                exit(1);
+            }
+            printf("\tDestination: %s", destination);
+            
+            /* DETERMINE SOURCE */
+            // TODO:  determine source
+            
+            if(strcmp(instr, "000") == 0) {
+                return;
+            } else if(strcmp(instr, "001") == 0) {
+                return;
+            } else if(strcmp(instr, "010") == 0) {
+                return;
+            } else if(strcmp(instr, "011") == 0) {
+                return;
+            } else if(strcmp(instr, "100") == 0) {
+                return;
+            } else if(strcmp(instr, "101") == 0) {
+                return;
+            } else if(strcmp(instr, "110") == 0) {
+                return;
+            } else if(strcmp(instr, "111") == 0) {
+                return;
+            } else {
+                printf("\nINVALID MEMORY INSTRUCTION. SOMETHING IS WRONG \'%s\'", instr);
+                exit(1);
+            }
         }
         default: {
-            printf("There is no such thing as a number not equal to 0 or 1. \'%c\'", opcode[0]);
+            printf("There is no such thing as a number not equal to 0 or 1. \'%c\' - \"%s\"", opcode[0], opcode);
             exit(1);
         }
     }
@@ -118,6 +167,11 @@ int num_data_bits(char *opcode) {
                     printf("\'%s\' IS NOT A VALID ADDRESSING MODE FOR MEMORY OPERATIONS", method);
                     exit(1);
                 }
+            } else if(strcmp(instr, "001") == 0) {
+                /* BRANCHING OPERATION */
+                // The opcode is always followed by a 16-bit operand that serves as the memory address.
+                printf("\tBranching Operation\n");
+                return 16;
             }
             break;
         }
@@ -155,7 +209,10 @@ int num_data_bits(char *opcode) {
         }
     }
     
-    return 0;
+    printf("\n\n--------------------------\n");
+    printf("FAILED TO PARSE THE OPCODE\n");
+    printf("--------------------------\n\n\n");
+    return -1;
 }
 
 unsigned char hex_char_to_int(unsigned char hex) {
@@ -250,5 +307,45 @@ char *nibble_to_binary(unsigned char hex) {
             printf("ERROR IN HEX VALUE TO BINARY METHOD\n");
             printf("\"%x\" or \"%c\" IS NOT A VALID HEXADECIMAL VALUE", hex, hex);
             exit(1);
+    }
+}
+
+int binary_to_decimal(char *binary) {
+    if(strcmp(binary, "0000") == 0) {
+        return 0;
+    } else if(strcmp(binary, "0001") == 0) {
+        return 1;
+    } else if(strcmp(binary, "0010") == 0) {
+        return 2;
+    } else if(strcmp(binary, "0011") == 0) {
+        return 3;
+    } else if(strcmp(binary, "0100") == 0) {
+        return 4;
+    } else if(strcmp(binary, "0101") == 0) {
+        return 5;
+    } else if(strcmp(binary, "0110") == 0) {
+        return 6;
+    } else if(strcmp(binary, "0111") == 0) {
+        return 7;
+    } else if(strcmp(binary, "1000") == 0) {
+        return 8;
+    } else if(strcmp(binary, "1001") == 0) {
+        return 9;
+    } else if(strcmp(binary, "1010") == 0) {
+        return 10;
+    } else if(strcmp(binary, "1011") == 0) {
+        return 11;
+    } else if(strcmp(binary, "1100") == 0) {
+        return 12;
+    } else if(strcmp(binary, "1101") == 0) {
+        return 13;
+    } else if(strcmp(binary, "1110") == 0) {
+        return 14;
+    } else if(strcmp(binary, "1111") == 0) {
+        return 15;
+    } else {
+        printf("ERROR IN BINARY STRING TO HEX NIBBLE METHOD\n");
+        printf("\"%s\" IS NOT A VALID BINARY STRING VALUE", binary);
+        exit(1);
     }
 }

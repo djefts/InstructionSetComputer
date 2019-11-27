@@ -7,42 +7,42 @@
 
 
 /***** MATHEMATICAL AND LOGICAL OPERATIONS *****/
-int AND(int input1, int input2) {
+int AND(int source, int destination) {
     printf("\tRunning AND function");
     return 0;
 }
 
-int OR(int input1, int input2) {
+int OR(int source, int destination) {
     printf("\tRunning OR function");
     return 0;
 }
 
-int XOR(int input1, int input2) {
+int XOR(int source, int destination) {
     printf("\tRunning XOR function");
     return 0;
 }
 
-int ADD(int input1, int input2) {
+int ADD(int source, int destination) {
     printf("\tRunning ADD function");
     return 0;
 }
 
-int SUB(int input1, int input2) {
+int SUB(int source, int destination) {
     printf("\tRunning SUB function");
     return 0;
 }
 
-int INC(int input1, int input2) {
+int INC(int source, int destination) {
     printf("\tRunning INC function");
     return 0;
 }
 
-int DEC(int input1, int input2) {
+int DEC(int source, int destination) {
     printf("\tRunning DEC function");
     return 0;
 }
 
-int NOT(int input1, int input2) {
+int NOT(int source, int destination) {
     printf("\tRunning NOT function");
     return 0;
 }

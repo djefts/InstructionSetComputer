@@ -1,8 +1,13 @@
+//
+// Created by David Jefts on 2019-11-21.
+//
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
+#include <time.h>
 
 #include "Headers/instruction_set.h"
 #include "Headers/parsing_functions.h"
@@ -16,8 +21,11 @@ void fileOutput();
 unsigned char memory[65536];    // main memory is 2^16 BYTES
 unsigned char ACC = 0x0;        // accumulator
 char IR[9];                     // instruction register - 8 bit string plus null char
-int MAR = 0;                    // memory address register
+unsigned char MAR = 0x0;        // memory address register
 unsigned long PC = 0;           // program counter
+unsigned long counter = 0;      // instruction counter
+
+
 
 int main(int argc, char *argv[]) {
     printf("Starting program...\n");
@@ -34,12 +42,13 @@ int main(int argc, char *argv[]) {
         }
         printf("%02x, ", memory[s]);
     }
-    printf("%02x  ]\n\n", memory[s]);
+    printf("%02x ]\n\n", memory[s]);
     
     /* INSTRUCTION FETCHING AND EXECUTION */
     PC = 0;
     while(PC < sizeof(memory)) {
         fetchNextInstruction();
+        counter++;
         
         if(strcmp(IR, "00011001") == 0) {
             printf("\n\n--------------------------------------------------\n");
@@ -76,7 +85,7 @@ void fetchNextInstruction() {
     // printf("Bytes: %s\n", byte);
     
     //print new PC and current opcode
-    printf("PC: %lu \n", PC);
+    printf("I#: %lu \tPC: %lu\n", counter, PC);
     printf("IR: %02x = %s \n", b, IR);
 }
 

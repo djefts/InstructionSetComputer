@@ -6,7 +6,7 @@
 #define INSTRUCTIONSETCOMPUTER_INSTRUCTION_SET_H
 
 /***** MATHEMATICAL AND LOGICAL OPERATIONS *****/
-int AND(int input1, int input2);
+int AND(int source, int destination);
 int OR(int input1, int input2);
 int XOR(int input1, int input2);
 int ADD(int input1, int input2);
