@@ -64,11 +64,11 @@ void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, u
                 switch(opcode[5]) {
                     case '0':
                         data_register = ACC;
-                        printf("\t\tRegister: ACC = %x", *data_register);
+                        printf("\t\tRegister: ACC = %x\n", *data_register);
                         break;
                     case '1':
                         data_register = MAR;
-                        printf("\t\tRegister: MAR = %x", *data_register);
+                        printf("\t\tRegister: MAR = %x\n", *data_register);
                         break;
                     default:
                         printf("\nERROR PARSING REGISTER VALUE \'%c\' FROM OPCODE \'%s\'\n\n", opcode[5], opcode);
@@ -79,13 +79,13 @@ void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, u
                 switch(opcode[4]) {
                     case '0':
                         // STORE memory <- register
-                        *source = *data_register;
                         printf("\tSTORING DATA INTO MEMORY\n");
+                        *source = *data_register;
                         break;
                     case '1':
                         // LOAD  register <- memory
-                        *data_register = *source;
                         printf("\tLOADING DATA FROM MEMORY\n");
+                        *data_register = *source;
                         break;
                 }
             } else if(strcmp(instr, "001") == 0 && opcode[4] == '0') {
