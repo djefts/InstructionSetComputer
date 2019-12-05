@@ -8,7 +8,8 @@
 #include <math.h>
 #include "Headers/parsing_functions.h"
 
-void parse_instruction(char *opcode, char *data, unsigned char *memory, unsigned char *ACC, unsigned char *MAR) {
+void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, unsigned int *ACC, unsigned int *MAR) {
+    printf("Executing Instruction %s-0x%x\n", opcode, data);
     if(strcmp(opcode, "00011000") == 0) {
         /* NOOP */
         return;
@@ -25,42 +26,81 @@ void parse_instruction(char *opcode, char *data, unsigned char *memory, unsigned
             char instr[4];
             memcpy(instr, &opcode[1], 3);
             instr[3] = '\0';
-            printf("Instr: %s\n", instr);
             
             if(strcmp(instr, "000") == 0) {
                 /* MEMORY OPERATIONS */
+                printf("\tMemory Operation - \n\t\t");
                 char method[3];
-                memcpy(method, &opcode[1], 2);
+                memcpy(method, &opcode[6], 2);
                 method[2] = '\0';
-                printf("Method: %s\n", method);
+                
+                // Determine source
+                unsigned char *source;
                 if(strcmp(method, "00") == 0) {
-                    /* INDIRECT ADDRESSING MODE*/
-                    break;
+                    // INDIRECT ADDRESSING MODE
+                    // Operand (data) is used as address
+                    source = &memory[data];
+                    printf("Source: &memory[data] = memory[%d]\n", data);
                 } else if(strcmp(method, "01") == 0) {
-                    /* DIRECT ADDRESSING MODE */
-                    switch(opcode[5]) {
-                        case '0':
-                            // ACC
-                            break;
-                        case '1':
-                            // MAR
-                            break;
-                    }
+                    // DIRECT ADDRESSING MODE
+                    // Operand is used as a constant
+                    // unsigned char constant = (unsigned char)data;
+                    // source = &constant;
+                    source = malloc(sizeof(data));
+                    *source = data;
+                    printf("Source: data = %i\n", *source);
                 } else if(strcmp(method, "10") == 0) {
-                    /* REGISTER INDIRECT ADDRESSING MODE */
-                    break;
+                    // REGISTER INDIRECT ADDRESSING MODE
+                    // Indirect (MAR used as pointer)
+                    source = &memory[*MAR];
+                    printf("Source: &memory[*MAR] = %s\n", source);
+                } else {
+                    printf("ERROR PARSING MEMORY SOURCE \"%s\" IS AN INVALID MEMORY OPERATIONS METHOD", method);
+                    exit(42);
                 }
+                
+                // Determine Destination
+                unsigned int *data_register;
+                switch(opcode[5]) {
+                    case '0':
+                        data_register = ACC;
+                        printf("\t\tRegister: ACC = %x", *data_register);
+                        break;
+                    case '1':
+                        data_register = MAR;
+                        printf("\t\tRegister: MAR = %x", *data_register);
+                        break;
+                    default:
+                        printf("\nERROR PARSING REGISTER VALUE \'%c\' FROM OPCODE \'%s\'\n\n", opcode[5], opcode);
+                        exit(42);
+                }
+                
+                /* PERFORM THE OPERATION */
+                switch(opcode[4]) {
+                    case '0':
+                        // STORE memory <- register
+                        *source = *data_register;
+                        printf("\tSTORING DATA INTO MEMORY\n");
+                        break;
+                    case '1':
+                        // LOAD  register <- memory
+                        *data_register = *source;
+                        printf("\tLOADING DATA FROM MEMORY\n");
+                        break;
+                }
+            } else if(strcmp(instr, "001") == 0 && opcode[4] == '0') {
+                /* BRANCHING OPERATIONS */
+                // TODO: branching operations
             }
             
             break;
         }
         case '1': {
             /* MATHEMATICAL OR LOGICAL OPERATIONS */
-            printf("");
+            printf("\tMathematical Operation - ");
             char instr[4];
             memcpy(instr, &opcode[1], 3);
             instr[3] = '\0';
-            printf("Instr: %s\n", instr);
             
             /* DETERMINE DESTINATION */
             unsigned char *destination;
@@ -68,28 +108,42 @@ void parse_instruction(char *opcode, char *data, unsigned char *memory, unsigned
             memcpy(dest, &opcode[4], 2);
             dest[2] = '\0';
             if(strcmp(dest, "00") == 0) {
+                // REGISTER INDIRECT ADDRESSING MODE
                 destination = &memory[*MAR];
+                printf("Destination: &memory[*MAR] = %s", destination);
             } else if(strcmp(dest, "01") == 0) {
                 destination = ACC;
+                printf("Destination: ACC = %s", destination);
             } else if(strcmp(dest, "10") == 0) {
                 destination = MAR;
+                printf("Destination: MAR = %s", destination);
             } else if(strcmp(dest, "11") == 0) {
-                long location = 0;
-                for(int i = 0; i < 4; i++) {
-                    char loc[4];
-                    memcpy(loc, &data[i * 4], 3);
-                    loc[3] = '\0';
-                    location += binary_to_decimal(loc) * (long)pow(16, 3 - i);
-                }
+                long location = binary_to_decimal(data);
                 destination = &memory[location];
+                printf("Destination: &memory[%lu] = %s", location, destination);
             } else {
-                printf("\nINVALID DESTINATION VALUE. SOMETHING IS WRONG. DATA: \'%s\'", data);
-                exit(1);
+                printf("\nINVALID DESTINATION VALUE. SOMETHING IS WRONG. DATA: \'%x\'", data);
+                exit(42);
             }
-            printf("\tDestination: %s", destination);
             
             /* DETERMINE SOURCE */
-            // TODO:  determine source
+            unsigned char *source;
+            char src[3];
+            memcpy(src, &opcode[6], 2);
+            dest[2] = '\0';
+            if(strcmp(src, "00") == 0) {
+                source = &memory[*MAR];
+            } else if(strcmp(src, "01") == 0) {
+                source = ACC;
+            } else if(strcmp(src, "10") == 0) {
+                source = MAR;
+            } else if(strcmp(src, "11") == 0) {
+                source = &memory[data];
+            } else {
+                printf("\nINVALID SOURCE VALUE. SOMETHING IS WRONG. DATA: \'%x\'", data);
+                exit(42);
+            }
+            printf("\tSource: %s\n", source);
             
             if(strcmp(instr, "000") == 0) {
                 return;
@@ -109,12 +163,12 @@ void parse_instruction(char *opcode, char *data, unsigned char *memory, unsigned
                 return;
             } else {
                 printf("\nINVALID MEMORY INSTRUCTION. SOMETHING IS WRONG \'%s\'", instr);
-                exit(1);
+                exit(42);
             }
         }
         default: {
             printf("There is no such thing as a number not equal to 0 or 1. \'%c\' - \"%s\"", opcode[0], opcode);
-            exit(1);
+            exit(42);
         }
     }
 }
@@ -165,7 +219,7 @@ int num_data_bits(char *opcode) {
                     return 0;
                 } else {
                     printf("\'%s\' IS NOT A VALID ADDRESSING MODE FOR MEMORY OPERATIONS", method);
-                    exit(1);
+                    exit(42);
                 }
             } else if(strcmp(instr, "001") == 0) {
                 /* BRANCHING OPERATION */
@@ -205,7 +259,7 @@ int num_data_bits(char *opcode) {
         }
         default: {
             printf("There is no such thing as a number not equal to 0 or 1. \'%c\'", opcode[0]);
-            exit(1);
+            exit(42);
         }
     }
     
@@ -255,7 +309,7 @@ unsigned char hex_char_to_int(unsigned char hex) {
         default:
             printf("ERROR IN HEX CHAR TO INT METHOD\n");
             printf("\"%x\" or \"%c\" IS NOT A VALID HEXADECIMAL VALUE", hex, hex);
-            exit(1);
+            exit(42);
     }
 }
 
@@ -306,12 +360,19 @@ char *nibble_to_binary(unsigned char hex) {
         default:
             printf("ERROR IN HEX VALUE TO BINARY METHOD\n");
             printf("\"%x\" or \"%c\" IS NOT A VALID HEXADECIMAL VALUE", hex, hex);
-            exit(1);
+            exit(42);
     }
 }
 
 int binary_to_decimal(char *binary) {
-    if(strcmp(binary, "0000") == 0) {
+    int decimal = 0;
+    for(int i = 0; i < sizeof(binary); i++) {
+        if(binary[i] == '1') {
+            decimal += (int)pow(2, i);
+        }
+    }
+    return decimal;
+    /*if(strcmp(binary, "0000") == 0 || strcmp(binary, "000") == 0) {
         return 0;
     } else if(strcmp(binary, "0001") == 0) {
         return 1;
@@ -346,6 +407,6 @@ int binary_to_decimal(char *binary) {
     } else {
         printf("ERROR IN BINARY STRING TO HEX NIBBLE METHOD\n");
         printf("\"%s\" IS NOT A VALID BINARY STRING VALUE", binary);
-        exit(1);
-    }
+        exit(42);
+    }*/
 }

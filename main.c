@@ -19,9 +19,9 @@ void fileOutput();
 
 
 unsigned char memory[65536];    // main memory is 2^16 BYTES
-unsigned char ACC = 0x0;        // accumulator
+unsigned int ACC = 0x0;         // accumulator
 char IR[9];                     // instruction register - 8 bit string plus null char
-unsigned char MAR = 0x0;        // memory address register
+unsigned int MAR = 0x0;         // memory address register
 unsigned long PC = 0;           // program counter
 unsigned long counter = 0;      // instruction counter
 
@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
     fileInput();
     
     // print contents of memory
-    printf("\nStarting memory state (%lu bytes):\n[ ", sizeof(memory));
+    /*printf("\nStarting memory state (%lu bytes):\n[ ", sizeof(memory));
     unsigned long s = 0;
     for(s = 0; s < sizeof(memory) - 1; s++) {
         if(s > 0 && s % 32 == 0) {
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
         }
         printf("%02x, ", memory[s]);
     }
-    printf("%02x ]\n\n", memory[s]);
+    printf("%02x ]\n\n", memory[s]);*/
     
     /* INSTRUCTION FETCHING AND EXECUTION */
     PC = 0;
@@ -76,21 +76,21 @@ int main(int argc, char *argv[]) {
 }
 
 void fetchNextInstruction() {
-    printf("Fetching next instruction...\n");
+    printf("\n\nFetching next instruction...\n");
     /* get opcode and put it into the instruction register */
-    unsigned char b = memory[PC];
+    unsigned char byte_code = memory[PC];
     PC++;
     
-    hex_byte_to_binary(b, IR);  // 8 bits + null terminator
+    hex_byte_to_binary(byte_code, IR);  // 8 bits + null terminator
     // printf("Bytes: %s\n", byte);
     
     //print new PC and current opcode
     printf("I#: %lu \tPC: %lu\n", counter, PC);
-    printf("IR: %02x = %s \n", b, IR);
+    printf("IR: %02x = %s \n", byte_code, IR);
 }
 
 void executeInstruction() {
-    printf("Executing instruction %s\n", IR);
+    printf("Parsing instruction %s\n", IR);
     if(strcmp(IR, "00011000") == 0) {
         printf("\tNOP(e). Nothing to see here, move along.\n\n");
         return;  // Nothing to see here, move along.
@@ -98,22 +98,20 @@ void executeInstruction() {
     
     /* figure out how many more bytes we need to grab */
     int mo_bits = num_data_bits(IR);
+    int num_bytes = mo_bits / 8;
     
-    char *data = calloc(mo_bits, sizeof(char));
-    printf("\tExtracting %i bits (%i bytes) from memory into data.\n", mo_bits, mo_bits / 8);
-    for(int i = 0; i < mo_bits / 8; i++) {
+    int data = 0;
+    printf("\tExtracting %i bits (%i bytes) from memory into data.\n\t\t", mo_bits, mo_bits / 8);
+    for(int i = 0; i < num_bytes; i++) {
         unsigned char next_byte = memory[PC];
         PC++;
-        
-        char binary_byte[9];
-        hex_byte_to_binary(next_byte, binary_byte);
-        printf("\t%02x = %s\n", next_byte, binary_byte);
-        snprintf(data, (i + 1) * 8 + 1, "%s%s", data, binary_byte);
+        data = (next_byte << (num_bytes - i - 1) * 8) | data;
+        printf("%02x  ", next_byte);
     }
-    printf("  Full instruction: %s %s\n\n", IR, data);
+    printf("\n  Full instruction: %s 0x%04x\n", IR, data);
     
     /* execute the instruction */
-    // parse_instruction(IR, data);
+    parse_instruction(IR, data, memory, &ACC, &MAR);
 }
 
 void fileInput() {
@@ -146,7 +144,7 @@ void fileInput() {
         int pc = 0;
         for(long i = 0; i < length; i++) {
             unsigned char byte = buffer[i];  // every character in buffer
-            if(byte != ' ' && byte != '\n' && byte != '\r') {
+            if(byte != ' ' && byte != '\n' && byte != '\r' && byte != '\0') {
                 mem[pc] = byte;
                 pc++;
             }
