@@ -6,26 +6,34 @@
 #define INSTRUCTIONSETCOMPUTER_INSTRUCTION_SET_H
 
 /***** MATHEMATICAL AND LOGICAL OPERATIONS *****/
-void AND(unsigned char *source, unsigned char *destination);
-void OR(unsigned char *source, unsigned char *destination);
-void XOR(unsigned char *source, unsigned char *destination);
-void ADD(unsigned char *source, unsigned char *destination);
-void SUB(unsigned char *source, unsigned char *destination);
-void INC(unsigned char *destination);
-void DEC(unsigned char *destination);
-void NOT(unsigned char *destination);
+void AND(u_int8_t *source, u_int8_t *destination);
+void OR(u_int8_t *source, u_int8_t *destination);
+void XOR(u_int8_t *source, u_int8_t *destination);
+void ADD(u_int8_t *source, u_int8_t *destination);
+void SUB(u_int8_t *source, u_int8_t *destination);
+void INC(u_int8_t *destination);
+void DEC(u_int8_t *destination);
+void NOT(u_int8_t *destination);
+void AND_MAR(u_int8_t *source, u_int16_t *destination);
+void OR_MAR(u_int8_t *source, u_int16_t *destination);
+void XOR_MAR(u_int8_t *source, u_int16_t *destination);
+void ADD_MAR(u_int8_t *source, u_int16_t *destination);
+void SUB_MAR(u_int8_t *source, u_int16_t *destination);
+void INC_MAR(u_int16_t *destination);
+void DEC_MAR(u_int16_t *destination);
+void NOT_MAR(u_int16_t *destination);
 
 /***** MEMORY OPERATIONS *****/
 int STOR(int input1, int input2);
 int LOAD(int input1, int input2);
 
 /***** BRANCHES / JUMPS *****/
-int BRA(int input1, int input2);
-int BRZ(int input1, int input2);
-int BNE(int input1, int input2);
-int BLT(int input1, int input2);
-int BLE(int input1, int input2);
-int BGT(int input1, int input2);
-int BGE(int input1, int input2);
+void BRA(unsigned long *PC, unsigned int data);
+void BRZ(unsigned long *PC, u_int8_t *ACC, unsigned int data);
+void BNE(unsigned long *PC, u_int8_t *ACC, unsigned int data);
+void BLT(unsigned long *PC, u_int8_t *ACC, unsigned int data);
+void BLE(unsigned long *PC, u_int8_t *ACC, unsigned int data);
+void BGT(unsigned long *PC, u_int8_t *ACC, unsigned int data);
+void BGE(unsigned long *PC, u_int8_t *ACC, unsigned int data);
 
 #endif //INSTRUCTIONSETCOMPUTER_INSTRUCTION_SET_H

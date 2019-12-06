@@ -18,10 +18,10 @@ void fileInput();
 void fileOutput();
 
 
-unsigned char memory[65536];    // main memory is 2^16 BYTES
-unsigned int ACC = 0x0;         // accumulator
+u_int8_t memory[65536];         // main memory is 2^16 BYTES
+u_int8_t ACC = 0x0;             // accumulator
 char IR[9];                     // instruction register - 8 bit string plus null char
-unsigned int MAR = 0x0;         // memory address register
+u_int16_t MAR = 0x0;            // memory address register
 unsigned long PC = 0;           // program counter
 unsigned long counter = 1;      // instruction counter
 
@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
     
     /* INSTRUCTION FETCHING AND EXECUTION */
     PC = 0;
-    while(PC < sizeof(memory)) {
+    while(1) {
         fetchNextInstruction();
         counter++;
         
