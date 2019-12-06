@@ -6,14 +6,14 @@
 #define INSTRUCTIONSETCOMPUTER_INSTRUCTION_SET_H
 
 /***** MATHEMATICAL AND LOGICAL OPERATIONS *****/
-int AND(int source, int destination);
-int OR(int input1, int input2);
-int XOR(int input1, int input2);
-int ADD(int input1, int input2);
-int SUB(int input1, int input2);
-int INC(int input1, int input2);
-int DEC(int input1, int input2);
-int NOT(int input1, int input2);
+void AND(unsigned char *source, unsigned char *destination);
+void OR(unsigned char *source, unsigned char *destination);
+void XOR(unsigned char *source, unsigned char *destination);
+void ADD(unsigned char *source, unsigned char *destination);
+void SUB(unsigned char *source, unsigned char *destination);
+void INC(unsigned char *destination);
+void DEC(unsigned char *destination);
+void NOT(unsigned char *destination);
 
 /***** MEMORY OPERATIONS *****/
 int STOR(int input1, int input2);

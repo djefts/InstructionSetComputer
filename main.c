@@ -23,7 +23,7 @@ unsigned int ACC = 0x0;         // accumulator
 char IR[9];                     // instruction register - 8 bit string plus null char
 unsigned int MAR = 0x0;         // memory address register
 unsigned long PC = 0;           // program counter
-unsigned long counter = 0;      // instruction counter
+unsigned long counter = 1;      // instruction counter
 
 
 
@@ -174,7 +174,7 @@ void fileOutput() {
     /* READ FILE IN */
     if(file) {
         for(PC = 0; PC < sizeof(memory); PC++) {
-            if(PC > 0 && PC % 10 == 0) {
+            if(PC > 0 && PC % 16 == 0) {
                 fprintf(file, "\n");
             }
             fprintf(file, "%02x ", memory[PC]);

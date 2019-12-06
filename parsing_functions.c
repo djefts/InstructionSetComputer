@@ -6,7 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <mach/boolean.h>
 #include "Headers/parsing_functions.h"
+#include "Headers/instruction_set.h"
 
 void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, unsigned int *ACC, unsigned int *MAR) {
     printf("Executing Instruction %s-0x%x\n", opcode, data);
@@ -34,59 +36,62 @@ void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, u
                 memcpy(method, &opcode[6], 2);
                 method[2] = '\0';
                 
-                // Determine source
-                unsigned char *source;
-                if(strcmp(method, "00") == 0) {
-                    // INDIRECT ADDRESSING MODE
-                    // Operand (data) is used as address
-                    source = &memory[data];
-                    printf("Source: &memory[data] = memory[%d]\n", data);
-                } else if(strcmp(method, "01") == 0) {
-                    // DIRECT ADDRESSING MODE
-                    // Operand is used as a constant
-                    // unsigned char constant = (unsigned char)data;
-                    // source = &constant;
-                    source = malloc(sizeof(data));
-                    *source = data;
-                    printf("Source: data = %i\n", *source);
-                } else if(strcmp(method, "10") == 0) {
-                    // REGISTER INDIRECT ADDRESSING MODE
-                    // Indirect (MAR used as pointer)
-                    source = &memory[*MAR];
-                    printf("Source: &memory[*MAR] = %s\n", source);
-                } else {
-                    printf("ERROR PARSING MEMORY SOURCE \"%s\" IS AN INVALID MEMORY OPERATIONS METHOD", method);
-                    exit(42);
-                }
-                
                 // Determine Destination
                 unsigned int *data_register;
+                char *reg;
                 switch(opcode[5]) {
                     case '0':
+                        reg = "ACC";
                         data_register = ACC;
-                        printf("\t\tRegister: ACC = %x\n", *data_register);
+                        printf("\t\tRegister: ACC = %02x\n", *data_register);
                         break;
                     case '1':
+                        reg = "MAR";
                         data_register = MAR;
-                        printf("\t\tRegister: MAR = %x\n", *data_register);
+                        printf("\t\tRegister: MAR = %04x\n", *data_register);
                         break;
                     default:
                         printf("\nERROR PARSING REGISTER VALUE \'%c\' FROM OPCODE \'%s\'\n\n", opcode[5], opcode);
                         exit(42);
                 }
                 
+                // Determine operand
+                unsigned char *operand;
+                if(strcmp(method, "00") == 0) {
+                    // INDIRECT ADDRESSING MODE
+                    // Operand (data) is used as address
+                    operand = &memory[data];
+                    printf("Source: memory[%d] = %02x\n", data, *operand);
+                } else if(strcmp(method, "01") == 0) {
+                    // DIRECT ADDRESSING MODE
+                    // Operand is used as a constant
+                    operand = malloc(sizeof(data));
+                    *operand = data;
+                    printf("Source: data = %04x\n", *operand);
+                } else if(strcmp(method, "10") == 0) {
+                    // REGISTER INDIRECT ADDRESSING MODE
+                    // Indirect (MAR used as pointer)
+                    operand = &memory[*MAR];
+                    printf("Source: memory[%02x] = %02x\n", *MAR, *operand);
+                } else {
+                    printf("ERROR PARSING MEMORY SOURCE \"%s\" IS AN INVALID MEMORY OPERATIONS METHOD", method);
+                    exit(42);
+                }
+                
                 /* PERFORM THE OPERATION */
                 switch(opcode[4]) {
                     case '0':
                         // STORE memory <- register
-                        printf("\tSTORING DATA INTO MEMORY\n");
-                        *source = *data_register;
-                        break;
+                        printf("\tSTORING DATA INTO MEMORY\n\t\t");
+                        *operand = *data_register;
+                        // printf("Set %02x to register %02x", *operand, *data_register);
+                        return;
                     case '1':
                         // LOAD  register <- memory
-                        printf("\tLOADING DATA FROM MEMORY\n");
-                        *data_register = *source;
-                        break;
+                        printf("\tLOADING DATA FROM MEMORY\n\t\t");
+                        *data_register = *operand;
+                        // printf("Set register %02x to %02x", *data_register, *operand);
+                        return;
                 }
             } else if(strcmp(instr, "001") == 0 && opcode[4] == '0') {
                 /* BRANCHING OPERATIONS */
@@ -103,6 +108,7 @@ void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, u
             instr[3] = '\0';
             
             /* DETERMINE DESTINATION */
+            int is_mar = 0;
             unsigned char *destination;
             char dest[3];
             memcpy(dest, &opcode[4], 2);
@@ -111,7 +117,7 @@ void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, u
                 // REGISTER INDIRECT ADDRESSING MODE
                 // Indirect (MAR used as pointer)
                 destination = &memory[*MAR];
-                printf("Destination: &memory[*MAR] = %s\n", destination);
+                printf("Destination: &memory[*MAR] = memory[%02x]\n", *MAR);
             } else if(strcmp(dest, "01") == 0) {
                 // REGISTER ADDRESSING MODE - ACC
                 destination = (unsigned char *)ACC;
@@ -119,6 +125,7 @@ void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, u
             } else if(strcmp(dest, "10") == 0) {
                 // REGISTER ADDRESSING MODE - MAR
                 destination = (unsigned char *)MAR;
+                is_mar = 1;
                 printf("Destination: MAR (currently) = %02x\n", *destination);
             } else if(strcmp(dest, "11") == 0) {
                 // INDIRECT ADDRESSING MODE
@@ -139,7 +146,7 @@ void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, u
                 // REGISTER INDIRECT ADDRESSING MODE
                 // Indirect (MAR used as pointer)
                 source = &memory[*MAR];
-                printf("\t\tSource: &memory[*MAR] = %s\n", source);
+                printf("\t\tSource: &memory[*MAR] = memory[%d]\n", *MAR);
             } else if(strcmp(src, "01") == 0) {
                 // REGISTER ADDRESSING MODE - ACC
                 source = (unsigned char *)ACC;
@@ -160,30 +167,54 @@ void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, u
                 exit(42);
             }
             
+            /* PERFORM THE OPERATION */
             if(strcmp(instr, "000") == 0) {
-                printf("\tPERFORMING AND OPERATION\n");
+                // AND
+                AND(source, destination);
                 return;
             } else if(strcmp(instr, "001") == 0) {
-                printf("\tPERFORMING OR OPERATION\n");
+                // OR
+                OR(source, destination);
                 return;
             } else if(strcmp(instr, "010") == 0) {
-                printf("\tPERFORMING XOR OPERATION\n");
+                // XOR
+                XOR(source, destination);
                 return;
             } else if(strcmp(instr, "011") == 0) {
-                printf("\tPERFORMING ADD OPERATION\n");
+                // ADD
+                ADD(source, destination);
                 return;
             } else if(strcmp(instr, "100") == 0) {
-                printf("\tPERFORMING SUBTRACT OPERATION\n");
+                // SUB
+                SUB(source, destination);
                 return;
             } else if(strcmp(instr, "101") == 0) {
-                printf("\tPERFORMING INCREMENT OPERATION\n");
-                return;
+                // INC
+                if(&*source == &*destination || is_mar == 1) {
+                    INC(destination);
+                    return;
+                } else {
+                    printf("INCREMENT OPERATION SOURCE IS NOT THE SAME AS DESTINATION. %p ≠ %p\n", &*source,  &*destination);
+                    exit(42);
+                }
             } else if(strcmp(instr, "110") == 0) {
-                printf("\tPERFORMING DECREMENT OPERATION\n");
-                return;
+                // DEC
+                if(&*source == &*destination || is_mar == 1) {
+                    DEC(destination);
+                    return;
+                } else {
+                    printf("DECREMENT OPERATION SOURCE IS NOT THE SAME AS DESTINATION. %p ≠ %p\n", &*source,  &*destination);
+                    exit(42);
+                }
             } else if(strcmp(instr, "111") == 0) {
-                printf("\tPERFORMING NOT OPERATION\n");
-                return;
+                // NOT
+                if(&*source == &*destination || is_mar == 1) {
+                    NOT(destination);
+                    return;
+                } else {
+                    printf("NOT OPERATION SOURCE IS NOT THE SAME AS DESTINATION. %p ≠ %p\n", &*source,  &*destination);
+                    exit(42);
+                }
             } else {
                 printf("\nINVALID MEMORY INSTRUCTION. SOMETHING IS WRONG \'%s\'", instr);
                 exit(42);
@@ -247,7 +278,7 @@ int num_data_bits(char *opcode) {
             } else if(strcmp(instr, "001") == 0) {
                 /* BRANCHING OPERATION */
                 // The opcode is always followed by a 16-bit operand that serves as the memory address.
-                printf("\tBranching Operation\n");
+                printf("\tBranching Operation - \n");
                 return 16;
             }
             break;

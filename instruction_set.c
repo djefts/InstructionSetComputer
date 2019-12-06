@@ -7,55 +7,52 @@
 
 
 /***** MATHEMATICAL AND LOGICAL OPERATIONS *****/
-int AND(int source, int destination) {
-    printf("\tRunning AND function");
-    return 0;
+void AND(unsigned char *source, unsigned char *destination) {
+    printf("\tPERFORMING BITWISE AND OPERATION\n\t\tDestination %x --> ", *destination);
+    *destination = *destination & *source;
+    printf("%x\n", *destination);
 }
 
-int OR(int source, int destination) {
-    printf("\tRunning OR function");
-    return 0;
+void OR(unsigned char *source, unsigned char *destination) {
+    printf("\tPERFORMING BITWISE OR OPERATION\n\t\tDestination %x --> ", *destination);
+    *destination = *destination | *source;
+    printf("%x\n", *destination);
 }
 
-int XOR(int source, int destination) {
-    printf("\tRunning XOR function");
-    return 0;
+void XOR(unsigned char *source, unsigned char *destination) {
+    printf("\tPERFORMING BITWISE XOR OPERATION\n\t\tDestination %x --> ", *destination);
+    *destination = *destination ^ *source;
+    printf("%x\n", *destination);
 }
 
-int ADD(int source, int destination) {
-    printf("\tRunning ADD function");
-    return 0;
+void ADD(unsigned char *source, unsigned char *destination) {
+    printf("\tPERFORMING ADDITION OPERATION\n\t\tDestination %x --> ", *destination);
+    *destination = *destination + *source;
+    printf("%x\n", *destination);
 }
 
-int SUB(int source, int destination) {
-    printf("\tRunning SUB function");
-    return 0;
+void SUB(unsigned char *source, unsigned char *destination) {
+    printf("\tPERFORMING SUBTRACTION OPERATION\n\t\tDestination %x --> ", *destination);
+    *destination = *destination - *source;
+    printf("%x\n", *destination);
 }
 
-int INC(int source, int destination) {
-    printf("\tRunning INC function");
-    return 0;
+void INC(unsigned char *destination) {
+    printf("\tPERFORMING INCREMENT OPERATION\n\t\tDestination %x --> ", *destination);
+    *destination += 0x1;
+    printf("%x\n", *destination);
 }
 
-int DEC(int source, int destination) {
-    printf("\tRunning DEC function");
-    return 0;
+void DEC(unsigned char *destination) {
+    printf("\tPERFORMING DECREMENT OPERATION\n\t\tDestination %x --> ", *destination);
+    *destination -= 0x1;
+    printf("%x\n", *destination);
 }
 
-int NOT(int source, int destination) {
-    printf("\tRunning NOT function");
-    return 0;
-}
-
-/***** MEMORY OPERATIONS *****/
-int STOR(int input1, int input2) {
-    printf("\tRunning STOR function");
-    return 0;
-}
-
-int LOAD(int input1, int input2) {
-    printf("\tRunning LOAD function");
-    return 0;
+void NOT(unsigned char *destination) {
+    printf("\tPERFORMING BITWISE NOT OPERATION\n\t\tDestination %x --> ", *destination);
+    *destination = ~*destination;
+    printf("%x\n", *destination);
 }
 
 /***** BRANCHES / JUMPS *****/
