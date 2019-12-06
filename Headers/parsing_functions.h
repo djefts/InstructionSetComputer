@@ -4,8 +4,9 @@
 
 #ifndef INSTRUCTIONSETCOMPUTER_PARSING_FUNCTIONS_H
 #define INSTRUCTIONSETCOMPUTER_PARSING_FUNCTIONS_H
-void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, unsigned int *ACC, unsigned int *MAR);
-int num_data_bits(char *opcode);
+void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, unsigned int *ACC, unsigned int *MAR,
+                       unsigned long *PC);
+int get_num_data_bits(char *opcode);
 unsigned char hex_char_to_int(unsigned char hex);
 void hex_byte_to_binary(unsigned char hex, char *byte);
 char *nibble_to_binary(unsigned char hex);

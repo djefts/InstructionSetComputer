@@ -8,51 +8,51 @@
 
 /***** MATHEMATICAL AND LOGICAL OPERATIONS *****/
 void AND(unsigned char *source, unsigned char *destination) {
-    printf("\tPERFORMING BITWISE AND OPERATION\n\t\tDestination %x --> ", *destination);
+    printf("\tPERFORMING BITWISE AND OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination = *destination & *source;
-    printf("%x\n", *destination);
+    printf("0x%x\n", *destination);
 }
 
 void OR(unsigned char *source, unsigned char *destination) {
-    printf("\tPERFORMING BITWISE OR OPERATION\n\t\tDestination %x --> ", *destination);
+    printf("\tPERFORMING BITWISE OR OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination = *destination | *source;
-    printf("%x\n", *destination);
+    printf("0x%x\n", *destination);
 }
 
 void XOR(unsigned char *source, unsigned char *destination) {
-    printf("\tPERFORMING BITWISE XOR OPERATION\n\t\tDestination %x --> ", *destination);
+    printf("\tPERFORMING BITWISE XOR OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination = *destination ^ *source;
-    printf("%x\n", *destination);
+    printf("0x%x\n", *destination);
 }
 
 void ADD(unsigned char *source, unsigned char *destination) {
-    printf("\tPERFORMING ADDITION OPERATION\n\t\tDestination %x --> ", *destination);
+    printf("\tPERFORMING ADDITION OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination = *destination + *source;
-    printf("%x\n", *destination);
+    printf("0x%x\n", *destination);
 }
 
 void SUB(unsigned char *source, unsigned char *destination) {
-    printf("\tPERFORMING SUBTRACTION OPERATION\n\t\tDestination %x --> ", *destination);
+    printf("\tPERFORMING SUBTRACTION OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination = *destination - *source;
-    printf("%x\n", *destination);
+    printf("0x%x\n", *destination);
 }
 
 void INC(unsigned char *destination) {
-    printf("\tPERFORMING INCREMENT OPERATION\n\t\tDestination %x --> ", *destination);
+    printf("\tPERFORMING INCREMENT OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination += 0x1;
-    printf("%x\n", *destination);
+    printf("0x%x\n", *destination);
 }
 
 void DEC(unsigned char *destination) {
-    printf("\tPERFORMING DECREMENT OPERATION\n\t\tDestination %x --> ", *destination);
+    printf("\tPERFORMING DECREMENT OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination -= 0x1;
-    printf("%x\n", *destination);
+    printf("0x%x\n", *destination);
 }
 
 void NOT(unsigned char *destination) {
-    printf("\tPERFORMING BITWISE NOT OPERATION\n\t\tDestination %x --> ", *destination);
+    printf("\tPERFORMING BITWISE NOT OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination = ~*destination;
-    printf("%x\n", *destination);
+    printf("0x%x\n", *destination);
 }
 
 /***** BRANCHES / JUMPS *****/

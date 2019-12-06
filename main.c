@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
 }
 
 void fetchNextInstruction() {
-    printf("\n\nFetching next instruction...\n");
+    printf("\nFetching next instruction...\n");
     /* get opcode and put it into the instruction register */
     unsigned char byte_code = memory[PC];
     PC++;
@@ -85,7 +85,8 @@ void fetchNextInstruction() {
     // printf("Bytes: %s\n", byte);
     
     //print new PC and current opcode
-    printf("I#: %lu \tPC: %lu\n", counter, PC);
+    printf("I#: %lu   PC: %lu   ", counter, PC);
+    printf("ACC: %02x   MAR: %04x\n", ACC, MAR);
     printf("IR: %02x = %s \n", byte_code, IR);
 }
 
@@ -97,7 +98,7 @@ void executeInstruction() {
     }
     
     /* figure out how many more bytes we need to grab */
-    int mo_bits = num_data_bits(IR);
+    int mo_bits = get_num_data_bits(IR);
     int num_bytes = mo_bits / 8;
     
     int data = 0;
@@ -111,7 +112,7 @@ void executeInstruction() {
     printf("\n  Full instruction: %s 0x%04x\n", IR, data);
     
     /* execute the instruction */
-    parse_instruction(IR, data, memory, &ACC, &MAR);
+    parse_instruction(IR, data, memory, &ACC, &MAR, &PC);
 }
 
 void fileInput() {

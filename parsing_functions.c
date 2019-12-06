@@ -10,8 +10,22 @@
 #include "Headers/parsing_functions.h"
 #include "Headers/instruction_set.h"
 
-void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, unsigned int *ACC, unsigned int *MAR) {
-    printf("Executing Instruction %s-0x%x\n", opcode, data);
+void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, unsigned int *ACC, unsigned int *MAR,
+                       unsigned long *PC) {
+    /**
+     * Parse and execute instructions passed in through `opcode`
+     *
+     * @param opcode: 8-character string with the opcode
+     * @param data: 1- or 2-byte operand
+     * @param memory: pointer to the memory array
+     * @param ACC: pointer to the 1-byte accumulator register
+     * @param MAR: pointer to the 2-byte memory address register
+     * @param PC: pointer to the program counter -- needed for branching instructions
+     *
+     * @return: when the instruction is executed or there is an error
+     */
+    
+    printf("Executing Instruction %s 0x%x/%d\n", opcode, data, data);
     if(strcmp(opcode, "00011000") == 0) {
         /* NOOP */
         return;
@@ -31,67 +45,138 @@ void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, u
             
             if(strcmp(instr, "000") == 0) {
                 /* MEMORY OPERATIONS */
-                printf("\tMemory Operation - \n\t\t");
+                printf("\tMemory Operation - ");
+                
                 char method[3];
                 memcpy(method, &opcode[6], 2);
                 method[2] = '\0';
                 
-                // Determine Destination
-                unsigned int *data_register;
-                char *reg;
-                switch(opcode[5]) {
-                    case '0':
-                        reg = "ACC";
-                        data_register = ACC;
-                        printf("\t\tRegister: ACC = %02x\n", *data_register);
-                        break;
-                    case '1':
-                        reg = "MAR";
-                        data_register = MAR;
-                        printf("\t\tRegister: MAR = %04x\n", *data_register);
-                        break;
-                    default:
-                        printf("\nERROR PARSING REGISTER VALUE \'%c\' FROM OPCODE \'%s\'\n\n", opcode[5], opcode);
-                        exit(42);
-                }
-                
-                // Determine operand
-                unsigned char *operand;
-                if(strcmp(method, "00") == 0) {
-                    // INDIRECT ADDRESSING MODE
-                    // Operand (data) is used as address
-                    operand = &memory[data];
-                    printf("Source: memory[%d] = %02x\n", data, *operand);
-                } else if(strcmp(method, "01") == 0) {
-                    // DIRECT ADDRESSING MODE
-                    // Operand is used as a constant
-                    operand = malloc(sizeof(data));
-                    *operand = data;
-                    printf("Source: data = %04x\n", *operand);
-                } else if(strcmp(method, "10") == 0) {
-                    // REGISTER INDIRECT ADDRESSING MODE
-                    // Indirect (MAR used as pointer)
-                    operand = &memory[*MAR];
-                    printf("Source: memory[%02x] = %02x\n", *MAR, *operand);
-                } else {
-                    printf("ERROR PARSING MEMORY SOURCE \"%s\" IS AN INVALID MEMORY OPERATIONS METHOD", method);
-                    exit(42);
-                }
-                
                 /* PERFORM THE OPERATION */
                 switch(opcode[4]) {
-                    case '0':
-                        // STORE memory <- register
-                        printf("\tSTORING DATA INTO MEMORY\n\t\t");
-                        *operand = *data_register;
-                        // printf("Set %02x to register %02x", *operand, *data_register);
+                    case '0': {
+                        /* STORE OPERATION */
+                        printf("Store\n\t\t");
+                        
+                        if(opcode[5] == '0') {
+                            // STORE FROM ACC
+                            printf("Register: ACC(0x%02x) --> ", *ACC);
+                            
+                            if(strcmp(method, "00") == 0) {
+                                // INDIRECT ADDRESSING MODE
+                                // Operand (data) is used as address
+                                printf("memory[%d]\n", data);
+                                printf("\tSETTING: memory[%d] = %02x\n", data, *ACC);
+                                memory[data] = *ACC;
+                            } else if(strcmp(method, "01") == 0) {
+                                // DIRECT ADDRESSING MODE
+                                // Operand is used as a constant
+                                printf("\n\nERROR- CAN'T STORE ACC INTO A CONSTANT. opcode = \"%s\"", opcode);
+                                exit(42);
+                            } else if(strcmp(method, "10") == 0) {
+                                // REGISTER INDIRECT ADDRESSING MODE
+                                // Indirect (MAR used as pointer)
+                                printf("memory[%d]\n", *MAR);
+                                printf("\tSETTING: memory[%d] to %02x\n", *MAR, *ACC);
+                                memory[*MAR] = *ACC;
+                            } else {
+                                printf("\n\nERROR PARSING MEMORY SOURCE \"%s\" IS AN INVALID MEMORY OPERATIONS METHOD",
+                                       method);
+                                exit(42);
+                            }
+                        } else if(opcode[5] == '1') {
+                            // STORE FROM MAR
+                            printf("Register: MAR(0x%04x) --> ", *MAR);
+                            
+                            if(strcmp(method, "00") == 0) {
+                                // INDIRECT ADDRESSING MODE
+                                // Operand (data) is used as address
+                                printf("memory[%d, %d]\n", data, data + 1);
+                                printf("\tSETTING: memory[%d] to (%02x, %02x)\n", data, (*MAR >> 8), (*MAR & 0x00FF));
+                                memory[data] = (*MAR >> 8);
+                                memory[data + 1] = (*MAR & 0x00FF);
+                            } else if(strcmp(method, "01") == 0) {
+                                // DIRECT ADDRESSING MODE
+                                // Operand is used as a constant
+                                printf("\nERROR- CAN'T STORE MAR INTO A CONSTANT. opcode = \"%s\"\n", opcode);
+                                exit(42);
+                            } else if(strcmp(method, "10") == 0) {
+                                // REGISTER INDIRECT ADDRESSING MODE
+                                // Indirect (MAR used as pointer)
+                                printf("memory[%d]\n", *MAR);
+                                printf("\tSETTING: memory[%d] to (%02x, %02x)\n", *MAR, (*MAR >> 8), (*MAR & 0x00FF));
+                                memory[*MAR] = (*MAR >> 8);
+                                memory[*MAR + 1] = (*MAR & 0x00FF);
+                            } else {
+                                printf("ERROR PARSING MEMORY SOURCE \"%s\" IS AN INVALID MEMORY OPERATIONS METHOD",
+                                       method);
+                                exit(42);
+                            }
+                        }
                         return;
-                    case '1':
-                        // LOAD  register <- memory
-                        printf("\tLOADING DATA FROM MEMORY\n\t\t");
-                        *data_register = *operand;
-                        // printf("Set register %02x to %02x", *data_register, *operand);
+                    }
+                    case '1': {
+                        /* LOAD OPERATION */
+                        printf("Load to register %c\n\t\t", opcode[5]);
+                        
+                        if(opcode[5] == '0') {
+                            // LOAD TO ACC
+                            printf("Register: ACC(0x%02x) <-- ", *ACC);
+                            
+                            if(strcmp(method, "00") == 0) {
+                                // INDIRECT ADDRESSING MODE
+                                // Operand (data) is used as address
+                                printf("memory[%d]\n", data);
+                                printf("\tSETTING: ACC = 0x%02x\n", memory[data]);
+                                *ACC = memory[data];
+                                printf("\t\tACC = 0x%02x\n", *ACC);
+                            } else if(strcmp(method, "01") == 0) {
+                                // DIRECT ADDRESSING MODE
+                                printf("0x%02x\n", data);
+                                *ACC = data;
+                                printf("\t\tACC = 0x%02x\n", *ACC);
+                            } else if(strcmp(method, "10") == 0) {
+                                // REGISTER INDIRECT ADDRESSING MODE
+                                // Indirect (MAR used as pointer)
+                                printf("memory[%d]\n", *MAR);
+                                printf("MAR = 0x%02x\n", memory[*MAR]);
+                                *ACC = memory[*MAR];
+                                printf("\t\tACC = 0x%02x\n", *ACC);
+                            } else {
+                                printf("\n\nERROR PARSING MEMORY SOURCE \"%s\" IS AN INVALID MEMORY OPERATIONS METHOD",
+                                       method);
+                                exit(42);
+                            }
+                        } else if(opcode[5] == '1') {
+                            // LOAD TO MAR
+                            printf("Register: MAR(0x%04x) <-- ", *MAR);
+                            
+                            if(strcmp(method, "00") == 0) {
+                                // INDIRECT ADDRESSING MODE
+                                // Operand (data) is used as address
+                                printf("memory[%d] + memory[%d]\n", data, data + 1);
+                                printf("\tSETTING: MAR = 0x%02x%02x\n", memory[data], memory[data + 1]);
+                                *MAR = (memory[data] << 8) | memory[data + 1];
+                                printf("\t\tMAR = 0x%04x\n", *MAR);
+                            } else if(strcmp(method, "01") == 0) {
+                                // DIRECT ADDRESSING MODE
+                                printf("0x%04x\n", data);
+                                *MAR = data;
+                                printf("\t\tMAR = 0x%04x\n", *MAR);
+                            } else if(strcmp(method, "10") == 0) {
+                                // REGISTER INDIRECT ADDRESSING MODE
+                                // Indirect (MAR used as pointer)
+                                printf("memory[%d] + memory[%d]\n", *MAR, *MAR + 1);
+                                printf("MAR = 0x%02x%02x\n", memory[*MAR], memory[*MAR + 1]);
+                                *MAR = (memory[*MAR] << 8) | memory[*MAR + 1];
+                                printf("\t\tMAR = 0x%04x\n", *MAR);
+                            } else {
+                                printf("\n\nERROR PARSING MEMORY SOURCE \"%s\" IS AN INVALID MEMORY OPERATIONS METHOD",
+                                       method);
+                                exit(42);
+                            }
+                        }
                         return;
+                    }
                 }
             } else if(strcmp(instr, "001") == 0 && opcode[4] == '0') {
                 /* BRANCHING OPERATIONS */
@@ -120,13 +205,15 @@ void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, u
                 printf("Destination: &memory[*MAR] = memory[%02x]\n", *MAR);
             } else if(strcmp(dest, "01") == 0) {
                 // REGISTER ADDRESSING MODE - ACC
-                destination = (unsigned char *)ACC;
+                // TODO: FIX THIS POINTER CONVERSION
+                destination = ACC;
                 printf("Destination: ACC (currently) = %02x\n", *destination);
             } else if(strcmp(dest, "10") == 0) {
                 // REGISTER ADDRESSING MODE - MAR
-                destination = (unsigned char *)MAR;
+                // TODO: FIX THIS POINTER CONVERSION
+                destination = MAR;
                 is_mar = 1;
-                printf("Destination: MAR (currently) = %02x\n", *destination);
+                printf("Destination: MAR (currently) = %04x\n", *destination);
             } else if(strcmp(dest, "11") == 0) {
                 // INDIRECT ADDRESSING MODE
                 // Operand (data) is used as address
@@ -146,7 +233,7 @@ void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, u
                 // REGISTER INDIRECT ADDRESSING MODE
                 // Indirect (MAR used as pointer)
                 source = &memory[*MAR];
-                printf("\t\tSource: &memory[*MAR] = memory[%d]\n", *MAR);
+                printf("\t\tSource: memory[*MAR] = memory[%d]\n", *MAR);
             } else if(strcmp(src, "01") == 0) {
                 // REGISTER ADDRESSING MODE - ACC
                 source = (unsigned char *)ACC;
@@ -161,7 +248,7 @@ void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, u
                 // INDIRECT ADDRESSING MODE
                 // Operand (data) is used as address
                 source = &memory[data];
-                printf("\t\tSource: &memory[data] = memory[%d]\n", data);
+                printf("\t\tSource: memory[data] = memory[%d] = %02x\n", data, memory[data]);
             } else {
                 printf("\nINVALID SOURCE VALUE. SOMETHING IS WRONG. SOURCE CODE: \'%s\'", src);
                 exit(42);
@@ -194,7 +281,8 @@ void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, u
                     INC(destination);
                     return;
                 } else {
-                    printf("INCREMENT OPERATION SOURCE IS NOT THE SAME AS DESTINATION. %p ≠ %p\n", &*source,  &*destination);
+                    printf("INCREMENT OPERATION SOURCE IS NOT THE SAME AS DESTINATION. %p ≠ %p\n", &*source,
+                           &*destination);
                     exit(42);
                 }
             } else if(strcmp(instr, "110") == 0) {
@@ -203,7 +291,8 @@ void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, u
                     DEC(destination);
                     return;
                 } else {
-                    printf("DECREMENT OPERATION SOURCE IS NOT THE SAME AS DESTINATION. %p ≠ %p\n", &*source,  &*destination);
+                    printf("DECREMENT OPERATION SOURCE IS NOT THE SAME AS DESTINATION. %p ≠ %p\n", &*source,
+                           &*destination);
                     exit(42);
                 }
             } else if(strcmp(instr, "111") == 0) {
@@ -212,7 +301,7 @@ void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, u
                     NOT(destination);
                     return;
                 } else {
-                    printf("NOT OPERATION SOURCE IS NOT THE SAME AS DESTINATION. %p ≠ %p\n", &*source,  &*destination);
+                    printf("NOT OPERATION SOURCE IS NOT THE SAME AS DESTINATION. %p ≠ %p\n", &*source, &*destination);
                     exit(42);
                 }
             } else {
@@ -227,7 +316,7 @@ void parse_instruction(char *opcode, unsigned int data, unsigned char *memory, u
     }
 }
 
-int num_data_bits(char *opcode) {
+int get_num_data_bits(char *opcode) {
     if(strcmp(opcode, "00011000") == 0) {
         /* NOOP */
         return 0;
