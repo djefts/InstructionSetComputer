@@ -157,15 +157,15 @@ void fileInput() {
     // convert local mem to hex values and set global memory
     int i = 0;
     PC = 0;
-    printf("\nConverting local mem nibbles to global memory bytes:\n[ ");
+    printf("\nConverting local mem nibbles to global memory bytes:\n ");
     for(i = 0; i < sizeof(mem); i = i + 2) {
-        printf("%c%c, ", mem[i], mem[i + 1]);  // converting from
+        // printf("%c%c, ", mem[i], mem[i + 1]);  // converting from
         /* EACH BYTE IS TWO NIBBLES */
         memory[PC] = hex_char_to_int(mem[i]) * 16;  // converted to
         memory[PC] += hex_char_to_int(mem[i + 1]);  // converted to
         PC++;
     }
-    printf("%c ]\n", mem[i]);
+    // printf("%c ]\n", mem[i]);
     
     fclose(file);
 }
