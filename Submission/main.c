@@ -73,6 +73,8 @@ int main(int argc, char *argv[]) {
         printf("%x, ", memory[e]);
     }
     printf("%x\t]\n", memory[e]);*/
+    printf("Press enter to close window.");
+    getchar();
 }
 
 void fetchNextInstruction() {
