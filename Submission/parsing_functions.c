@@ -6,10 +6,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <stdint.h>
+
 #include "parsing_functions.h"
 #include "instruction_set.h"
 
-void parse_instruction(char *opcode, unsigned int data, u_int8_t *memory, u_int8_t *ACC, u_int16_t *MAR,
+void parse_instruction(char *opcode, unsigned int data, uint8_t *memory, uint8_t *ACC, uint16_t *MAR,
                        unsigned long *PC) {
     /**
      * Parse and execute instructions passed in through `opcode`
@@ -224,7 +226,7 @@ void parse_instruction(char *opcode, unsigned int data, u_int8_t *memory, u_int8
         
         /* DETERMINE DESTINATION */
         int is_mar = 0;
-        u_int8_t *destination;
+        uint8_t *destination;
         char dest[3];
         memcpy(dest, &opcode[4], 2);
         dest[2] = '\0';
@@ -253,7 +255,7 @@ void parse_instruction(char *opcode, unsigned int data, u_int8_t *memory, u_int8
         }
         
         /* DETERMINE SOURCE */
-        u_int8_t *source;
+        uint8_t *source;
         char src[3];
         memcpy(src, &opcode[6], 2);
         dest[2] = '\0';

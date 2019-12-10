@@ -3,102 +3,103 @@
 //
 
 #include <stdio.h>
+#include <stdint.h>
 #include "instruction_set.h"
 
 
 /***** MATHEMATICAL AND LOGICAL OPERATIONS *****/
-void AND(u_int8_t *source, u_int8_t *destination) {
+void AND(uint8_t *source, uint8_t *destination) {
     printf("\tPERFORMING BITWISE AND OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination = *destination & *source;
     printf("0x%x\n", *destination);
 }
 
-void OR(u_int8_t *source, u_int8_t *destination) {
+void OR(uint8_t *source, uint8_t *destination) {
     printf("\tPERFORMING BITWISE OR OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination = *destination | *source;
     printf("0x%x\n", *destination);
 }
 
-void XOR(u_int8_t *source, u_int8_t *destination) {
+void XOR(uint8_t *source, uint8_t *destination) {
     printf("\tPERFORMING BITWISE XOR OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination = *destination ^ *source;
     printf("0x%x\n", *destination);
 }
 
-void ADD(u_int8_t *source, u_int8_t *destination) {
+void ADD(uint8_t *source, uint8_t *destination) {
     printf("\tPERFORMING ADDITION OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination = *destination + *source;
     printf("0x%x\n", *destination);
 }
 
-void SUB(u_int8_t *source, u_int8_t *destination) {
+void SUB(uint8_t *source, uint8_t *destination) {
     printf("\tPERFORMING SUBTRACTION OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination = *destination - *source;
     printf("0x%x\n", *destination);
 }
 
-void INC(u_int8_t *destination) {
+void INC(uint8_t *destination) {
     printf("\tPERFORMING INCREMENT OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination += 0x1;
     printf("0x%x\n", *destination);
 }
 
-void DEC(u_int8_t *destination) {
+void DEC(uint8_t *destination) {
     printf("\tPERFORMING DECREMENT OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination -= 0x1;
     printf("0x%x\n", *destination);
 }
 
-void NOT(u_int8_t *destination) {
+void NOT(uint8_t *destination) {
     printf("\tPERFORMING BITWISE NOT OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination = ~*destination;
     printf("0x%x\n", *destination);
 }
 
 /***** MATHEMATICAL AND LOGICAL OPERATIONS MODIFIED FOR MAR REGISTER *****/
-void AND_MAR(u_int8_t *source, u_int16_t *destination) {
+void AND_MAR(uint8_t *source, uint16_t *destination) {
     printf("\tPERFORMING BITWISE AND OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination = *destination & *source;
     printf("0x%x\n", *destination);
 }
 
-void OR_MAR(u_int8_t *source, u_int16_t *destination) {
+void OR_MAR(uint8_t *source, uint16_t *destination) {
     printf("\tPERFORMING BITWISE OR OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination = *destination | *source;
     printf("0x%x\n", *destination);
 }
 
-void XOR_MAR(u_int8_t *source, u_int16_t *destination) {
+void XOR_MAR(uint8_t *source, uint16_t *destination) {
     printf("\tPERFORMING BITWISE XOR OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination = *destination ^ *source;
     printf("0x%x\n", *destination);
 }
 
-void ADD_MAR(u_int8_t *source, u_int16_t *destination) {
+void ADD_MAR(uint8_t *source, uint16_t *destination) {
     printf("\tPERFORMING ADDITION OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination = *destination + *source;
     printf("0x%x\n", *destination);
 }
 
-void SUB_MAR(u_int8_t *source, u_int16_t *destination) {
+void SUB_MAR(uint8_t *source, uint16_t *destination) {
     printf("\tPERFORMING SUBTRACTION OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination = *destination - *source;
     printf("0x%x\n", *destination);
 }
 
-void INC_MAR(u_int16_t *destination) {
+void INC_MAR(uint16_t *destination) {
     printf("\tPERFORMING INCREMENT OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination += 0x1;
     printf("0x%x\n", *destination);
 }
 
-void DEC_MAR(u_int16_t *destination) {
+void DEC_MAR(uint16_t *destination) {
     printf("\tPERFORMING DECREMENT OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination -= 0x1;
     printf("0x%x\n", *destination);
 }
 
-void NOT_MAR(u_int16_t *destination) {
+void NOT_MAR(uint16_t *destination) {
     printf("\tPERFORMING BITWISE NOT OPERATION\n\t\tDestination 0x%x --> ", *destination);
     *destination = ~*destination;
     printf("0x%x\n", *destination);
@@ -111,7 +112,7 @@ void BRA(unsigned long *PC, unsigned int data) {
     printf("PC = %lu\n", *PC);
 }
 
-void BRZ(unsigned long *PC, u_int8_t *ACC, unsigned int data) {
+void BRZ(unsigned long *PC, uint8_t *ACC, unsigned int data) {
     if(*ACC == 0) {
         printf("Setting PC(%lu) to %d\n\t\t", *PC, data);
         *PC = data;
@@ -121,7 +122,7 @@ void BRZ(unsigned long *PC, u_int8_t *ACC, unsigned int data) {
     }
 }
 
-void BNE(unsigned long *PC, u_int8_t *ACC, unsigned int data) {
+void BNE(unsigned long *PC, uint8_t *ACC, unsigned int data) {
     if(*ACC != 0) {
         printf("Setting PC(%lu) to %d\n\t\t", *PC, data);
         *PC = data;
@@ -131,7 +132,7 @@ void BNE(unsigned long *PC, u_int8_t *ACC, unsigned int data) {
     }
 }
 
-void BLT(unsigned long *PC, u_int8_t *ACC, unsigned int data) {
+void BLT(unsigned long *PC, uint8_t *ACC, unsigned int data) {
     int8_t accumulator = *ACC;
     if(accumulator < 0) {
         printf("Setting PC(%lu) to %d\n\t\t", *PC, data);
@@ -142,7 +143,7 @@ void BLT(unsigned long *PC, u_int8_t *ACC, unsigned int data) {
     }
 }
 
-void BLE(unsigned long *PC, u_int8_t *ACC, unsigned int data) {
+void BLE(unsigned long *PC, uint8_t *ACC, unsigned int data) {
     int8_t accumulator = *ACC;
     if(accumulator <= 0) {
         printf("Setting PC(%lu) to %d\n\t\t", *PC, data);
@@ -153,7 +154,7 @@ void BLE(unsigned long *PC, u_int8_t *ACC, unsigned int data) {
     }
 }
 
-void BGT(unsigned long *PC, u_int8_t *ACC, unsigned int data) {
+void BGT(unsigned long *PC, uint8_t *ACC, unsigned int data) {
     int8_t accumulator = *ACC;
     if(accumulator > 0) {
         printf("Setting PC(%lu) to %d\n\t\t", *PC, data);
@@ -164,7 +165,7 @@ void BGT(unsigned long *PC, u_int8_t *ACC, unsigned int data) {
     }
 }
 
-void BGE(unsigned long *PC, u_int8_t *ACC, unsigned int data) {
+void BGE(unsigned long *PC, uint8_t *ACC, unsigned int data) {
     int8_t accumulator = *ACC;
     if(accumulator >= 0) {
         printf("Setting PC(%lu) to %d\n\t\t", *PC, data);

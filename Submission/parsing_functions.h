@@ -4,6 +4,7 @@
 
 #ifndef INSTRUCTIONSETCOMPUTER_PARSING_FUNCTIONS_H
 #define INSTRUCTIONSETCOMPUTER_PARSING_FUNCTIONS_H
+#include <stdint.h>
 void parse_instruction(char *opcode, unsigned int data, uint8_t *memory, uint8_t *ACC, uint16_t *MAR,
                        unsigned long *PC);
 int get_num_data_bits(char *opcode);

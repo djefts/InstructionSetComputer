@@ -7,6 +7,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
+#include <stdint.h>
 
 #include "instruction_set.h"
 #include "parsing_functions.h"
@@ -17,10 +18,10 @@ void fileInput();
 void fileOutput();
 
 
-u_int8_t memory[65536];         // main memory is 2^16 BYTES
-u_int8_t ACC = 0x0;             // accumulator
+uint8_t memory[65536];         // main memory is 2^16 BYTES
+uint8_t ACC = 0x0;             // accumulator
 char IR[9];                     // instruction register - 8 bit string plus null char
-u_int16_t MAR = 0x0;            // memory address register
+uint16_t MAR = 0x0;            // memory address register
 unsigned long PC = 0;           // program counter
 unsigned long counter = 1;      // instruction counter
 

@@ -5,6 +5,8 @@
 #ifndef INSTRUCTIONSETCOMPUTER_INSTRUCTION_SET_H
 #define INSTRUCTIONSETCOMPUTER_INSTRUCTION_SET_H
 
+#include <stdint.h>
+
 /***** MATHEMATICAL AND LOGICAL OPERATIONS *****/
 void AND(uint8_t *source, uint8_t *destination);
 void OR(uint8_t *source, uint8_t *destination);
