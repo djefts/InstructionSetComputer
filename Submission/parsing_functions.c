@@ -182,32 +182,32 @@ void parse_instruction(char *opcode, unsigned int data, uint8_t *memory, uint8_t
             char branch_type[4];
             memcpy(branch_type, &opcode[5], 3);
             branch_type[3] = '\0';
-    
-            if(strcmp(branch_type, "000") ==  0) {
+            
+            if(strcmp(branch_type, "000") == 0) {
                 // UNCONDITIONAL BRANCH
                 printf("Unconditional\n\t\t");
                 BRA(PC, data);
-            } else if(strcmp(branch_type, "001") ==  0) {
+            } else if(strcmp(branch_type, "001") == 0) {
                 // BRANCH IF ACC == 0
                 printf("Branch if ACC == 0\n\t\t");
                 BRZ(PC, ACC, data);
-            } else if(strcmp(branch_type, "010") ==  0) {
+            } else if(strcmp(branch_type, "010") == 0) {
                 // BRANCH IF ACC != 0
                 printf("BRANCH IF ACC != 0\n\t\t");
                 BNE(PC, ACC, data);
-            } else if(strcmp(branch_type, "011") ==  0) {
+            } else if(strcmp(branch_type, "011") == 0) {
                 // BRANCH IF ACC < 0
                 printf("BRANCH IF ACC < 0\n\t\t");
                 BLT(PC, ACC, data);
-            } else if(strcmp(branch_type, "100") ==  0) {
+            } else if(strcmp(branch_type, "100") == 0) {
                 // BRANCH IF ACC ≤ 0
                 printf("BRANCH IF ACC ≤ 0\n\t\t");
                 BLE(PC, ACC, data);
-            } else if(strcmp(branch_type, "101") ==  0) {
+            } else if(strcmp(branch_type, "101") == 0) {
                 // BRANCH IF ACC > 0
                 printf("BRANCH IF ACC > 0\n\t\t");
                 BGT(PC, ACC, data);
-            } else if(strcmp(branch_type, "110") ==  0) {
+            } else if(strcmp(branch_type, "110") == 0) {
                 // BRANCH IF ACC ≥ 0
                 printf("BRANCH IF ACC ≥ 0\n\t\t");
                 BGE(PC, ACC, data);
@@ -258,7 +258,7 @@ void parse_instruction(char *opcode, unsigned int data, uint8_t *memory, uint8_t
         uint8_t *source;
         char src[3];
         memcpy(src, &opcode[6], 2);
-        dest[2] = '\0';
+        src[2] = '\0';
         if(strcmp(src, "00") == 0) {
             // REGISTER INDIRECT ADDRESSING MODE
             // Indirect (MAR used as pointer)
